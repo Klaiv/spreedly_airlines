@@ -1,0 +1,17 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  flight_id: 1
+  amount: 1
+  payment_token: MyString
+  save_credit_card: false
+  pmd: false
+  email: MyString
+
+two:
+  flight_id: 1
+  amount: 1
+  payment_token: MyString
+  save_credit_card: false
+  pmd: false
+  email: MyString
