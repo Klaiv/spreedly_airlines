@@ -1,5 +1,32 @@
+<script src="https://core.spreedly.com/iframe/express-2.min.js"></script>
+<script type="text/javascript">
+function initializeSpreedly() {
+
+    if (document.getElementById('booking_email').value == "") {
+        alert("enter valid email");
+        return false;
+    }
+    SpreedlyExpress.init("<%=ENV["ACCESS_KEY"]%>", {
+            "amount": document.getElementById('amount').innerHTML,
+            "company_name": "Spreedly Airlines",
+            "sidebar_top_description": "Providing quality widgets since 2015",
+            "sidebar_bottom_description": "Flight from <%=@selected_flight.origin_airport%> to <%=@selected_flight.destination_airport%> on <%=@selected_flight.departure_date%> ",
+            "full_name": "First Last"
+        }, {
+            "email": document.getElementById('booking_email').value
+        });
+    var tokenField = document.getElementById("booking_payment_token");
+
+    tokenField.setAttribute("value", 'XeVyBkc1QRua51Dl1tLXYiXtQjE');
+    var masterForm = document.getElementById('new_booking');
+
+    masterForm.submit();
+ 
+}
+</script>
 <h1>New Booking</h1>
+
+
 
 <%= render 'form', booking: @booking %>
 
-<%= link_to 'Back', bookings_path %>

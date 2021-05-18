@@ -1,4 +1,4 @@
-<%= form_with(model: booking, local: true) do |form| %>
+<%= form_for @booking  do |form| %>
   <% if booking.errors.any? %>
     <div id="error_explanation">
       <h2><%= pluralize(booking.errors.count, "error") %> prohibited this booking from being saved:</h2>
@@ -11,37 +11,77 @@
     </div>
   <% end %>
 
-  <div class="field">
-    <%= form.label :flight_id %>
-    <%= form.number_field :flight_id %>
-  </div>
 
-  <div class="field">
-    <%= form.label :amount %>
-    <%= form.number_field :amount %>
-  </div>
+    <div class="row">
+        <div class="col-md-4 order-md-2 mb-4">
+            <h4 class="d-flex justify-content-between align-items-center mb-3">
+                <span class="text-muted">Your cart</span>
 
-  <div class="field">
-    <%= form.label :payment_token %>
-    <%= form.text_field :payment_token %>
-  </div>
+            </h4>
+            <ul class="list-group mb-3 ">
+                <li class="list-group-item d-flex justify-content-between lh-condensed">
+                    <div>
+                        
+                        <small class="text-muted">Brief description</small>
+                    </div>
+                    <span class="text-muted">$<%=@selected_flight.cost%></span>
+                </li>
 
-  <div class="field">
-    <%= form.label :save_credit_card %>
-    <%= form.check_box :save_credit_card %>
-  </div>
+                <li class="list-group-item d-flex justify-content-between">
+                    <span>Total (USD)</span>
+                    <strong id="amount">$<%=@selected_flight.cost%></strong>
+                </li>
+            </ul>
+     
+        </div>
+        <div class="col-md-8 order-md-1">
+          
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                     
+                    </div>
+                </div>
 
-  <div class="field">
-    <%= form.label :pmd %>
-    <%= form.check_box :pmd %>
-  </div>
+                <div class="mb-3">
+                    <label for="email">Email </label>
+                    
+                    
+                        <%= form.email_field :email , {:class => 'form-control'}%>
+                    <div class="invalid-feedback"> Please enter a valid email address for shipping updates. </div>
+                </div>
+            
+                <div class="custom-control custom-checkbox">
+                  
+                    <%= form.check_box :save_credit_card, {:class => 'custom-control-input'} %>
+                    <label class="custom-control-label" for="save_credit_card">Save this information for next time</label>
+                </div>
+                <hr class="mb-4">
+                <h4 class="mb-3">Payment</h4>
+                <div class="d-block my-3">
+                    <div class="custom-control custom-radio">
+                        <input id="credit" name="paymentMethod" type="radio" class="custom-control-input" checked="" required="">
+                        <label class="custom-control-label" for="credit">Credit card</label>
+                    </div>
+                    <div class="custom-control custom-radio">
+                        <input id="paypal" name="paymentMethod" type="radio" class="custom-control-input" required="">
+                        <label class="custom-control-label" for="paypal">PayPal</label>
+                    </div>
+                </div>
 
-  <div class="field">
-    <%= form.label :email %>
-    <%= form.text_field :email %>
-  </div>
-
-  <div class="actions">
-    <%= form.submit %>
-  </div>
+                <hr class="mb-4">
+                <%= form.hidden_field :payment_token %>
+                <%= form.hidden_field :amount, :value => @selected_flight.cost %>
+                <%= form.hidden_field :flight_id, :value => @selected_flight.id %> 
+                <button class="btn btn-primary btn-lg btn-block" type="button" onmouseover= "initializeSpreedly()" onclick="SpreedlyExpress.openView();">Continue to checkout</button>
+            
+        </div>
+    </div>
 <% end %>
+<script>
+  document.querySelector("input").focus();
+  console.log(document.activeElement.tagName);
+  // → INPUT
+  document.querySelector("input").blur();
+  console.log(document.activeElement.tagName);
+  // → BODY
+</script>
