@@ -15,15 +15,24 @@ function initializeSpreedly() {
         }, {
             "email": document.getElementById('booking_email').value
         });
+    SpreedlyExpress.openView();
+
+
+    SpreedlyExpress.onPaymentMethod(function(token, paymentMethod) {
+
+  // Send requisite payment method info to backend
     var tokenField = document.getElementById("booking_payment_token");
 
-    tokenField.setAttribute("value", 'XeVyBkc1QRua51Dl1tLXYiXtQjE');
+    tokenField.setAttribute("value", token);
+
     var masterForm = document.getElementById('new_booking');
 
-    masterForm.submit();
+        masterForm.submit();
+});
  
 }
 </script>
+<p id="notice"><%= notice %></p>
 <h1>New Booking</h1>
 
 

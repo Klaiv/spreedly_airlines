@@ -6,6 +6,7 @@
 #   movies = Movie.create([{ name: 'Star Wars' }, { name: 'Lord of the Rings' }])
 #   Character.create(name: 'Luke', movie: movies.first)
 Flight.delete_all
+Booking.delete_all
 
 puts 'Creating Flights'
 
@@ -15,19 +16,19 @@ puts 'Creating Flights'
 Flight.create!(origin_airport: 'San Francisco (SFO)',
                  destination_airport: 'Portland (PDX)',
                  departure_date: rand(4..17).days.from_now.strftime('%Y-%m-%d'),
-                 cost: '312')
+                 cost: '31200')
 
 Flight.create!(origin_airport: 'Raleigh-Durham (RDU)',
                  destination_airport: 'Harare (HRE)',
                  departure_date: rand(4..17).days.from_now.strftime('%Y-%m-%d'),
-                 cost: '1420')
+                 cost: '142000')
 
 
 Flight.create!(origin_airport: 'Raleigh-Durham (RDU)',
                  destination_airport: 'Portland PDX',
                  departure_date: rand(4..17).days.from_now.strftime('%Y-%m-%d'),
-                 cost: '620')
+                 cost: '62000')
 Flight.create!(origin_airport: 'Raleigh-Durham (RDU)',
                  destination_airport: 'New York (JFK)',
                  departure_date: rand(4..17).days.from_now.strftime('%Y-%m-%d'),
-                 cost: '230')
+                 cost: '23000')

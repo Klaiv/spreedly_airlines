@@ -26,8 +26,12 @@ class BookingsController < ApplicationController
     
 
     if @booking.valid?
+      if !@booking.pmd?
       purchase_call = complete_purchase(booking_params[:amount], booking_params[:payment_token], booking_params[:save_credit_card])
-      if purchase_call['transaction']['succeeded']==false
+
+
+
+      if purchase_call['transaction']['succeeded']==true
         if @booking.save
          redirect_to bookings_path, notice: "Booking was successfully updated." 
    
@@ -40,9 +44,21 @@ class BookingsController < ApplicationController
 
       end
       
+      else
+
+      receiver = use_receiver(booking_params[:amount], booking_params[:payment_token])
+      puts receiver['transaction']['succeeded']
+
+      if receiver['transaction']['succeeded'] ==true
+        @booking.save
+        redirect_to bookings_path, notice: "Booking with Receiver was successful." 
+      else
+        redirect_to new_booking_path + '?flight_id='+booking_params[:flight_id], notice: "Receiver Payment method declined" 
+      end
 
 
     end
+  end
 
    
   end
@@ -76,135 +92,46 @@ class BookingsController < ApplicationController
       @booking = Booking.find(params[:id])
     end
 
+    def use_receiver(amount, token)
+      uri = 'https://core.spreedly.com/v1/receivers/' + ENV['RECEIVER_TOKEN'] + '/deliver.json'
+
+   
+      
+      response = Faraday.post(uri) do |req |
+      encoded = Base64.strict_encode64("#{ENV['ACCESS_KEY']}:#{ENV['ACCESS_SECRET']}")
+      req.headers['Authorization'] = "Basic #{encoded}"
+      req.headers['Content-Type'] = 'application/json'
+      req.body = {
+        "delivery": {
+          "payment_method_token": token,
+          "url": "https://spreedly-echo.herokuapp.com",
+           "body": "{ \"amount\": #{amount},\"card_number\": \"{{credit_card_number}}\" }"
+        }
+      }.to_json
+    end
+
+       return JSON.parse(response.body)
+
+    end
+
      def complete_purchase(amount, token, save_credit_card)
     uri = 'https://core.spreedly.com/v1/gateways/' + ENV['GATEWAY_TOKEN'] + '/purchase.json'
 
-    # response = Faraday.post(uri) do |req |
-    #     encoded = Base64.strict_encode64("#{ENV['ACCESS_KEY']}:#{ENV['ACCESS_SECRET']}")
-    # req.headers['Authorization'] = "Basic #{encoded}"
-    # req.headers['Content-Type'] = 'application/json'
-    # req.body = {
-    #   "transaction": {
-    #     "payment_method_token": token,
-    #     "amount": amount,
-    #     "currency_code": "USD",
-    #     "retain_on_success": save_credit_card
-    #   }
-    # }.to_json
-
-    # end
-    null = "0"
-    response = {
-    "transaction": {
-        "on_test_gateway": true,
-        "created_at": "2021-05-18T03:56:27Z",
-        "updated_at": "2021-05-18T03:56:27Z",
-        "succeeded": true,
-        "state": "succeeded",
-        "token": "UVgt2wn2s2VBQfS4bSVbYVnp9jQ",
-        "transaction_type": "Purchase",
-        "order_id": null,
-        "ip": null,
-        "description": null,
-        "email": null,
-        "merchant_name_descriptor": null,
-        "merchant_location_descriptor": null,
-        "merchant_profile_key": null,
-        "gateway_specific_fields": null,
-        "gateway_specific_response_fields": {},
-        "gateway_transaction_id": "66",
-        "gateway_latency_ms": 0,
-        "stored_credential_initiator": null,
-        "stored_credential_reason_type": null,
-        "warning": null,
-        "application_id": null,
-        "amount": 312,
+    response = Faraday.post(uri) do |req |
+        encoded = Base64.strict_encode64("#{ENV['ACCESS_KEY']}:#{ENV['ACCESS_SECRET']}")
+    req.headers['Authorization'] = "Basic #{encoded}"
+    req.headers['Content-Type'] = 'application/json'
+    req.body = {
+      "transaction": {
+        "payment_method_token": token,
+        "amount": amount,
         "currency_code": "USD",
-        "retain_on_success": false,
-        "payment_method_added": false,
-        "smart_routed": false,
-        "message_key": "messages.transaction_succeeded",
-        "message": "Succeeded!",
-        "gateway_token": "BJNbUD339XcZgfBj3yJKQEQnYZM",
-        "gateway_type": "test",
-        "response": {
-            "success": true,
-            "message": "Successful purchase",
-            "avs_code": null,
-            "avs_message": null,
-            "cvv_code": null,
-            "cvv_message": null,
-            "pending": false,
-            "result_unknown": false,
-            "error_code": null,
-            "error_detail": null,
-            "cancelled": false,
-            "fraud_review": null,
-            "created_at": "2021-05-18T03:56:27Z",
-            "updated_at": "2021-05-18T03:56:27Z"
-        },
-        "shipping_address": {
-            "name": "First Last",
-            "address1": null,
-            "address2": null,
-            "city": null,
-            "state": null,
-            "zip": null,
-            "country": null,
-            "phone_number": null
-        },
-        "api_urls": [
-            {
-                "referencing_transaction": []
-            },
-            {
-                "failover_transaction": []
-            }
-        ],
-        "attempt_3dsecure": false,
-        "payment_method": {
-            "token": "XeVyBkc1QRua51Dl1tLXYiXtQjE",
-            "created_at": "2021-05-17T20:48:36Z",
-            "updated_at": "2021-05-17T20:48:36Z",
-            "email": "be@c.com",
-            "data": null,
-            "storage_state": "cached",
-            "test": true,
-            "metadata": null,
-            "callback_url": null,
-            "last_four_digits": "1111",
-            "first_six_digits": "411111",
-            "card_type": "visa",
-            "first_name": "First",
-            "last_name": "Last",
-            "month": 12,
-            "year": 2024,
-            "address1": null,
-            "address2": null,
-            "city": null,
-            "state": null,
-            "zip": null,
-            "country": null,
-            "phone_number": null,
-            "company": null,
-            "full_name": "First Last",
-            "eligible_for_card_updater": true,
-            "shipping_address1": null,
-            "shipping_address2": null,
-            "shipping_city": null,
-            "shipping_state": null,
-            "shipping_zip": null,
-            "shipping_country": null,
-            "shipping_phone_number": null,
-            "payment_method_type": "credit_card",
-            "errors": [],
-            "fingerprint": "e3cef43464fc832f6e04f187df25af497994",
-            "verification_value": "",
-            "number": "XXXX-XXXX-XXXX-1111"
-        }
-    }
-}
-    return JSON.parse(response.to_json)
+        "retain_on_success": save_credit_card
+      }
+    }.to_json
+
+    end
+    return JSON.parse(response.body)
 
 end
 

@@ -59,12 +59,8 @@
                 <h4 class="mb-3">Payment</h4>
                 <div class="d-block my-3">
                     <div class="custom-control custom-radio">
-                        <input id="credit" name="paymentMethod" type="radio" class="custom-control-input" checked="" required="">
-                        <label class="custom-control-label" for="credit">Credit card</label>
-                    </div>
-                    <div class="custom-control custom-radio">
-                        <input id="paypal" name="paymentMethod" type="radio" class="custom-control-input" required="">
-                        <label class="custom-control-label" for="paypal">PayPal</label>
+                         <%= form.check_box :pmd, {:class => 'custom-control-input'} %>
+                        <label class="custom-control-label" for="pmd">Credit card</label>
                     </div>
                 </div>
 
@@ -72,7 +68,7 @@
                 <%= form.hidden_field :payment_token %>
                 <%= form.hidden_field :amount, :value => @selected_flight.cost %>
                 <%= form.hidden_field :flight_id, :value => @selected_flight.id %> 
-                <button class="btn btn-primary btn-lg btn-block" type="button" onmouseover= "initializeSpreedly()" onclick="SpreedlyExpress.openView();">Continue to checkout</button>
+                <button class="btn btn-primary btn-lg btn-block" type="button" onclick="initializeSpreedly()">Continue to checkout</button>
             
         </div>
     </div>
