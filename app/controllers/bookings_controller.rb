@@ -40,20 +40,32 @@ class BookingsController < ApplicationController
         
         end
       else
-        redirect_to new_booking_path + '?flight_id='+booking_params[:flight_id], notice: "Payment method declined" 
+        if purchase_call['transaction']['message'] !=""
+          notice_message = purchase_call['transaction']['message']
+        else
+          notice_message ="Payment method declined"
+        end
+        redirect_to new_booking_path + '?flight_id='+booking_params[:flight_id], notice:  notice_message 
 
       end
       
       else
 
       receiver = use_receiver(booking_params[:amount], booking_params[:payment_token])
-      puts receiver['transaction']['succeeded']
+      
 
       if receiver['transaction']['succeeded'] ==true
         @booking.save
         redirect_to bookings_path, notice: "Booking with Receiver was successful." 
       else
-        redirect_to new_booking_path + '?flight_id='+booking_params[:flight_id], notice: "Receiver Payment method declined" 
+        if receiver['transaction']['message'] !=""
+          notice_message = receiver['transaction']['message']
+        else
+          notice_message ="Receiver Payment method declined" 
+        end
+          
+        
+        redirect_to new_booking_path + '?flight_id='+booking_params[:flight_id], notice: notice_message
       end
 
 

@@ -13,7 +13,13 @@
 
 
     <div class="row">
-        <div class="col-md-4 order-md-2 mb-4">
+     
+        <div class="col-md-8 order-md-1">
+          
+                <div class="row">
+                    <div class="col-md-12 mb-3">
+                 
+
             <h4 class="d-flex justify-content-between align-items-center mb-3">
                 <span class="text-muted">Your cart</span>
 
@@ -22,23 +28,20 @@
                 <li class="list-group-item d-flex justify-content-between lh-condensed">
                     <div>
                         
-                        <small class="text-muted">Brief description</small>
+                        <small class="text-muted">Your flight from <%=@selected_flight.origin_airport%> to <%=@selected_flight.destination_airport%> on <%=@selected_flight.departure_date%></small>
                     </div>
-                    <span class="text-muted">$<%=@selected_flight.cost%></span>
+                    <span class="text-muted">$<%=(@selected_flight.cost)/100%></span>
                 </li>
 
                 <li class="list-group-item d-flex justify-content-between">
                     <span>Total (USD)</span>
-                    <strong id="amount">$<%=@selected_flight.cost%></strong>
+                    <strong id="amount">$<%=(@selected_flight.cost)/100%></strong>
                 </li>
             </ul>
      
-        </div>
-        <div class="col-md-8 order-md-1">
-          
-                <div class="row">
-                    <div class="col-md-6 mb-3">
-                     
+      
+
+
                     </div>
                 </div>
 
@@ -50,18 +53,21 @@
                     <div class="invalid-feedback"> Please enter a valid email address for shipping updates. </div>
                 </div>
             
-                <div class="custom-control custom-checkbox">
-                  
-                    <%= form.check_box :save_credit_card, {:class => 'custom-control-input'} %>
-                    <label class="custom-control-label" for="save_credit_card">Save this information for next time</label>
-                </div>
+
                 <hr class="mb-4">
                 <h4 class="mb-3">Payment</h4>
                 <div class="d-block my-3">
-                    <div class="custom-control custom-radio">
-                         <%= form.check_box :pmd, {:class => 'custom-control-input'} %>
-                        <label class="custom-control-label" for="pmd">Credit card</label>
-                    </div>
+                   
+
+                <div class="form-check form-check-inline">
+  <%= form.check_box :pmd, {:class => 'form-check-input'} %>
+                        <label class="form-check-label" for="pmd">Use Receiver</label>
+</div>
+<div class="form-check form-check-inline">
+<%= form.check_box :save_credit_card, {:class => 'form-check-input'} %>
+                    <label class="form-check-label" for="save_credit_card">Save Card</label>
+</div>
+
                 </div>
 
                 <hr class="mb-4">
