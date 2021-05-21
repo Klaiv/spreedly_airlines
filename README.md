@@ -1,9 +1,6 @@
 # Getting familiar with Spreedly Express and API, 
 ---
 
-Chat API that users simple username/password authentication. <br />
-Utilized 'joi' for input sanitization, 'bycrpt' for encryption and HAPIJS server.
-
 # Getting Started
 
 
