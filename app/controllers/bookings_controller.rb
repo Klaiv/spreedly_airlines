@@ -4,6 +4,7 @@ class BookingsController < ApplicationController
   # GET /bookings or /bookings.json
   def index
     @bookings = Booking.all
+    @transactions = all_transactions['transactions']
   end
 
   # GET /bookings/1 or /bookings/1.json
@@ -14,6 +15,7 @@ class BookingsController < ApplicationController
   def new
     @selected_flight = Flight.find(params[:flight_id])
     @booking = Booking.new
+  
   end
 
   # GET /bookings/1/edit
@@ -22,55 +24,38 @@ class BookingsController < ApplicationController
 
   # POST /bookings or /bookings.json
   def create
-    @booking = Booking.new(booking_params)
-    
 
-    if @booking.valid?
-      if !@booking.pmd?
-      purchase_call = complete_purchase(booking_params[:amount], booking_params[:payment_token], booking_params[:save_credit_card])
+  @booking = Booking.new(booking_params)
+  if @booking.pmd?
+    success_notice="Expedia received your information was successfully"
+    response = use_receiver(booking_params[:amount], booking_params[:payment_token])
+  else
+    success_notice="Booking with Spreedly Airlines was successful"
+    response= complete_purchase(booking_params[:amount], booking_params[:payment_token], booking_params[:save_credit_card])
+  end
 
+     if response['transaction']['succeeded']==true
 
-
-      if purchase_call['transaction']['succeeded']==true
-        if @booking.save
-         redirect_to bookings_path, notice: "Booking was successfully updated." 
+         if @booking.save
+         redirect_to bookings_path, notice: success_notice 
    
         else
-          redirect_to flight_path, notice: "Payment not saved, email tech support" 
+          redirect_to flights_path, notice: "Payment was successful but booking not saved, email tech support" 
         
         end
-      else
-        if purchase_call['transaction']['message'] !=""
-          notice_message = purchase_call['transaction']['message']
+
+
+     else
+      if response['transaction']['message'] !=""
+          notice_message = response['transaction']['message']
         else
           notice_message ="Payment method declined"
         end
         redirect_to new_booking_path + '?flight_id='+booking_params[:flight_id], notice:  notice_message 
 
-      end
-      
-      else
+     end
 
-      receiver = use_receiver(booking_params[:amount], booking_params[:payment_token])
-      
-
-      if receiver['transaction']['succeeded'] ==true
-        @booking.save
-        redirect_to bookings_path, notice: "Booking with Receiver was successful." 
-      else
-        if receiver['transaction']['message'] !=""
-          notice_message = receiver['transaction']['message']
-        else
-          notice_message ="Receiver Payment method declined" 
-        end
-          
-        
-        redirect_to new_booking_path + '?flight_id='+booking_params[:flight_id], notice: notice_message
-      end
-
-
-    end
-  end
+    
 
    
   end
@@ -99,53 +84,79 @@ class BookingsController < ApplicationController
     
 
   private
+
+    BASE_URI = 'https://core.spreedly.com/v1/'
     # Use callbacks to share common setup or constraints between actions.
     def set_booking
       @booking = Booking.find(params[:id])
     end
 
-    def use_receiver(amount, token)
-      uri = 'https://core.spreedly.com/v1/receivers/' + ENV['RECEIVER_TOKEN'] + '/deliver.json'
+    def stored_cards
+        uri = 'https://core.spreedly.com/v1/payment_methods.json'
+        return get_call(uri)
+       
+    end
 
-   
+    def all_transactions
+       uri = 'https://core.spreedly.com/v1/transactions.json?state=succeeded&order=desc'
+
+      return get_call(uri)
+    end
+
+    def get_call(uri)
+      response = Faraday.get(uri) do |req |
+                  encoded = Base64.strict_encode64("#{ENV['ACCESS_KEY']}:#{ENV['ACCESS_SECRET']}")
+                req.headers['Authorization'] = "Basic #{encoded}"
+                req.headers['Content-Type'] = 'application/json'
+    
+
+              end
+        return JSON.parse(response.body)
+
+    end
+
+       def complete_purchase(amount, token, save_credit_card)
       
+
+        body ={
+             "transaction":{
+                "payment_method_token": token,
+                "amount": amount,
+                "currency_code": "USD",
+                "retain_on_success": save_credit_card
+             }
+          }.to_json
+
+        return make_call("gateways",ENV['GATEWAY_TOKEN'], "purchase.json" , body)
+    end
+
+    def use_receiver(amount, token)
+          
+
+          body =  {
+             "delivery":{
+                "payment_method_token": token,
+                "url": "https://spreedly-echo.herokuapp.com",
+                "body": "{ \"amount\": #{amount},\"card_number\": \"{{credit_card_number}}\" }"
+             }
+          }.to_json
+      return make_call("receivers",ENV['RECEIVER_TOKEN'], "deliver.json" , body)
+  
+
+      end
+
+    def make_call(type, path_token, endpoint, body)
+      uri = BASE_URI + type + '/' + path_token + '/' + endpoint 
+
       response = Faraday.post(uri) do |req |
-      encoded = Base64.strict_encode64("#{ENV['ACCESS_KEY']}:#{ENV['ACCESS_SECRET']}")
-      req.headers['Authorization'] = "Basic #{encoded}"
-      req.headers['Content-Type'] = 'application/json'
-      req.body = {
-        "delivery": {
-          "payment_method_token": token,
-          "url": "https://spreedly-echo.herokuapp.com",
-           "body": "{ \"amount\": #{amount},\"card_number\": \"{{credit_card_number}}\" }"
-        }
-      }.to_json
+                  encoded = Base64.strict_encode64("#{ENV['ACCESS_KEY']}:#{ENV['ACCESS_SECRET']}")
+                req.headers['Authorization'] = "Basic #{encoded}"
+                req.headers['Content-Type'] = 'application/json'
+                req.body = body
+
+              end
+        return JSON.parse(response.body)
     end
-
-       return JSON.parse(response.body)
-
-    end
-
-     def complete_purchase(amount, token, save_credit_card)
-    uri = 'https://core.spreedly.com/v1/gateways/' + ENV['GATEWAY_TOKEN'] + '/purchase.json'
-
-    response = Faraday.post(uri) do |req |
-        encoded = Base64.strict_encode64("#{ENV['ACCESS_KEY']}:#{ENV['ACCESS_SECRET']}")
-    req.headers['Authorization'] = "Basic #{encoded}"
-    req.headers['Content-Type'] = 'application/json'
-    req.body = {
-      "transaction": {
-        "payment_method_token": token,
-        "amount": amount,
-        "currency_code": "USD",
-        "retain_on_success": save_credit_card
-      }
-    }.to_json
-
-    end
-    return JSON.parse(response.body)
-
-end
 
 
     # Only allow a list of trusted parameters through.

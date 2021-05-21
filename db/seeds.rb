@@ -12,11 +12,15 @@ puts 'Creating Flights'
 
 #Hard Code a few flights
 
-
-Flight.create!(origin_airport: 'San Francisco (SFO)',
-                 destination_airport: 'Portland (PDX)',
+Flight.create!(origin_airport: 'Naboo, Mid Rim',
+                 destination_airport: 'Tatooine, Outer Rim',
                  departure_date: rand(4..17).days.from_now.strftime('%Y-%m-%d'),
-                 cost: '31200')
+                 cost: '3458009000')
+
+Flight.create!(origin_airport: 'Tatooine, Outer Rim',
+                 destination_airport: 'Geonosis, Outer Rim',
+                 departure_date: rand(4..17).days.from_now.strftime('%Y-%m-%d'),
+                 cost: '3456777700')
 
 Flight.create!(origin_airport: 'Raleigh-Durham (RDU)',
                  destination_airport: 'Harare (HRE)',

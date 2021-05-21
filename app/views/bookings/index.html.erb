@@ -2,13 +2,13 @@
 
 <h1>Bookings</h1>
 
-<table class="table">
+<table class="table table-striped">
   <thead>
     <tr>
       <th>Flight</th>
       <th>Amount</th>
       <th>Credit Card on File</th>
-      <th>Receiver</th>
+      <th>Booked Via Expedia</th>
       <th>Email</th>
       <th>Date Purchased</th>
       
@@ -21,8 +21,8 @@
       @selected_flight = Flight.find(booking.flight_id)
     %>
       <tr>
-        <td><%= @selected_flight.origin_airport %> - <%= @selected_flight.destination_airport %> </td>
-        <td>$<%= (booking.amount)/100 %></td>
+        <td><%= @selected_flight.origin_airport %> to <%= @selected_flight.destination_airport %>  departing <%= @selected_flight.departure_date.strftime('%d-%b-%Y' ) %> </td>
+        <td>$<%= number_to_currency(booking.amount/100, raise: true)%></td>
         <td><%= booking.save_credit_card %></td>
         <td><%= booking.pmd %></td>
         <td><%= booking.email %></td>
@@ -33,4 +33,33 @@
 </table>
 
 <br>
+<h2> Transcations from Spreedly API</h2>
+<table class="table table-responsive table-striped">
+  <thead>
+    <tr>
+      <th>Full Name</th>
+      <th> Customer Email</th>
+      <th> Last Four Digits</th>
+      <th> Time</th>
+      <th> Transaction Type</th>
+   
+      
+    </tr>
+  </thead>
+
+  <tbody>
+    <% @transactions.each do |transaction| %>
+    
+      <tr>
+        
+       <td><%= transaction['payment_method']['full_name'] %> </td>
+        <td><%= transaction['payment_method']['email'] %> </td>
+        <td><%= transaction['payment_method']['last_four_digits'] %> </td>
+          <td><%= Date.parse(transaction['payment_method']['created_at']).strftime('%d-%b-%Y' ) %> </td>
+        <td><%= transaction['transaction_type'] %> </td>
+     
+      </tr>
+    <% end %>
+  </tbody>
+</table>
 

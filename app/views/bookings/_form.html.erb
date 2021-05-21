@@ -30,12 +30,12 @@
                         
                         <small class="text-muted">Your flight from <%=@selected_flight.origin_airport%> to <%=@selected_flight.destination_airport%> on <%=@selected_flight.departure_date%></small>
                     </div>
-                    <span class="text-muted">$<%=(@selected_flight.cost)/100%></span>
+                    <span class="text-muted"><%=number_to_currency(@selected_flight.cost/100, raise: true)%></span>
                 </li>
 
                 <li class="list-group-item d-flex justify-content-between">
                     <span>Total (USD)</span>
-                    <strong id="amount">$<%=(@selected_flight.cost)/100%></strong>
+                    <strong id="amount"><%=number_to_currency(@selected_flight.cost/100, raise: true)%></strong>
                 </li>
             </ul>
      
@@ -49,7 +49,7 @@
                     <label for="email">Email </label>
                     
                     
-                        <%= form.email_field :email , {:class => 'form-control'}%>
+                        <%= form.email_field :email ,{:class => 'form-control', placeholder: "please enter your email address", required: true} %>
                     <div class="invalid-feedback"> Please enter a valid email address for shipping updates. </div>
                 </div>
             
@@ -61,11 +61,11 @@
 
                 <div class="form-check form-check-inline">
   <%= form.check_box :pmd, {:class => 'form-check-input'} %>
-                        <label class="form-check-label" for="pmd">Use Receiver</label>
+                        <label class="form-check-label" for="pmd">Book via Expedia</label>
 </div>
 <div class="form-check form-check-inline">
 <%= form.check_box :save_credit_card, {:class => 'form-check-input'} %>
-                    <label class="form-check-label" for="save_credit_card">Save Card</label>
+                    <label class="form-check-label" for="save_credit_card">Save Card for future use</label>
 </div>
 
                 </div>
@@ -79,11 +79,4 @@
         </div>
     </div>
 <% end %>
-<script>
-  document.querySelector("input").focus();
-  console.log(document.activeElement.tagName);
-  // → INPUT
-  document.querySelector("input").blur();
-  console.log(document.activeElement.tagName);
-  // → BODY
-</script>
+
